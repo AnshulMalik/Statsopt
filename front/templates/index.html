@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <link href="/css/c3.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="chart"></div>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="/js/d3.v3.min.js" charset="utf-8"></script>
+    <script src="/js/c3.js"></script>
+    <script>
+
+    monthVar = {
+      "Jan": 01,
+      "Feb": 02,
+      "Mar": 03,
+      "Apr": 04,
+      "May": 05,
+      "Jun": 06,
+      "Jul": 07,
+      "Aug": 08,
+      "Sep": 09,
+      "Oct": 10,
+      "Nov": 11,
+      "Dec": 12
+    };
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+    ];
+
+    $.get("/data/data.csv", function(file) {
+  //      console.log(file);
+        var years = ['Years'];
+        var yearsData = ['Price'];
+        var allTextLines = file.split(/\r\n|\n/);
+        var headers = allTextLines[0].split(',');    
+        var yearSplit = [];
+
+        for (var i = 1; i < allTextLines.length-1; i++) {
+            var data = allTextLines[i].split(',');
+            yearSplit = data[0].split(' ');
+            years.push(yearSplit[1] + "-" + monthVar[yearSplit[0]] + "-01");
+            yearsData.push(parseFloat(data[1]));
+        }
+
+       var chart = c3.generate({
+            data: {
+                x: 'Years',
+        //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+                columns: [
+                    years,
+                    yearsData
+                ],
+                type: 'area-spline'
+            },
+            zoom: {
+                enabled: true
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%Y'
+                    }
+                }
+            },
+            tooltip: {
+                format: {
+                  title: function (x) { return monthNames[x.getMonth()] + " " + x.getFullYear() }
+                }
+            }
+        });
+
+    });
+    </script>
+  </body>
+</html>

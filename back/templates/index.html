@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Your shopping cart</title>
+		<link rel="stylesheet" href="/css/materialize.css" />
+		<link rel="stylesheet" href="/css/style.css" />
+	</head>
+
+	<body>
+		<div class="row">
+			<div class="col s9 leftContainer">
+				<div class="container">
+					<h2>Select products :<h2>
+				</div>
+				<div class="row products">
+					
+						
+						
+
+
+				</div>
+			</div>
+			<div class="col s3 cart rightContainer">
+				Items in cart: 
+
+				<table class="cart-items">
+
+				</table>
+			</div>
+		</div>
+
+
+		<script type="text/javascript" src="/js/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materialize.js"></script>
+
+		<script type="text/javascript">
+			
+
+			// Products are stored here instead of fetching, we can fetch products from api provided and display here
+			var products = {
+				1:	{"name": "Product 1", price: 30, image: "/images/image.jpg", id: 1},
+				2:  {"name": "Product 2", price: 40, image: "/images/image.jpg", id: 2},
+				3: 	{"name": "Product 3", price: 50, image: "/images/image.jpg", id: 3},
+				4:  {"name": "Product 4", price: 45, image: "/images/image.jpg", id: 4}
+			};
+
+
+
+			// List all product
+			for (i in products) {
+				$('.products').append('<div class="col s12 m6 prod"><p class="center prodTitle"> ' + products[i].name+ ' </p><div class="center"><img src="' + products[i].image + '"></div><p class="center prodFooter"><div class="col s6"><p class="price">' + products[i].price + '</p></div><div class="col s6"><input type="button" class="btn btn-small right cartBtn" id="'+ products[i].id +'" value="Add"></div></p></div>');
+
+			}
+
+
+			function updateCart() {
+				if(localStorage.items) {
+					cartItems = JSON.parse(localStorage.items)
+					cartContainer = $('.cart-items');
+					changed = "";
+					for(i in cartItems) {
+						if(cartItems[i].count > 0) {
+						changed += "<tr><td>" + cartItems[i].name +"</td><td>"  + cartItems[i].count +"</td><td>"+ cartItems[i].price*cartItems[i].count+ "</td><td><div class='removeBtn' onclick='javascript: deleteFromCart("+ cartItems[i].id+");'>-</div>" +"</td></tr>";
+						}
+					}
+
+					cartContainer.html(changed);
+					
+				}
+			}
+
+			function itemExists(id) {
+				if(!localStorage.items)
+					return -1;
+				cartItems = JSON.parse(localStorage.items)
+				for(var i in cartItems) {
+					if(cartItems[i].id == id)
+						return i;
+				}
+				return -1;
+			}
+			function deleteFromCart(id) {
+				//console.log("deleting " + id);
+				indexInLocalStorage = itemExists(id);
+				cartItems = []
+				if(localStorage.items) {
+					cartItems = JSON.parse(localStorage.items);
+				}
+
+				if(indexInLocalStorage == -1) {
+					// Product doesn't exist in the cart
+					// Fetch product details and save in local storage
+				}
+				else {
+					// Item already exists in cart
+
+					cartItems[indexInLocalStorage].count--;
+					localStorage.items = JSON.stringify(cartItems);
+				}
+
+				updateCart();
+			}
+
+			function addToCart(id) {
+				indexInLocalStorage = itemExists(id);
+				cartItems = []
+				if(localStorage.items) {
+					cartItems = JSON.parse(localStorage.items);
+				}
+
+				if(indexInLocalStorage == -1) {
+					// Product doesn't exist in the cart
+					// Fetch product details and save in local storage
+					var tempItem = products[id];
+					tempItem.count = 1;
+					cartItems.push(tempItem);
+					localStorage.items = JSON.stringify(cartItems);
+					//console.log("localStorage : " + localStorage.items + " tempItem count : " + tempItem.count);
+				}
+				else {
+					// Item already exists in cart
+
+					cartItems[indexInLocalStorage].count++;
+					localStorage.items = JSON.stringify(cartItems);
+				}
+
+				updateCart();
+			}
+
+			$('.cartBtn').on('click', function(e) {
+				e.preventDefault();
+				addToCart(e.target.id)
+			});
+			$('.removeBtn').on('click', function(e) {
+				console.log('clicked');
+				e.preventDefault();
+
+				deleteFromCart(e.target.attributes[1].value);
+			});
+
+			function init() {
+				if(!localStorage.items) 
+					localStorage.items = [];
+				
+				cartItems = []
+				if(localStorage.items) {
+					cartItems = JSON.parse(localStorage.items);
+				}
+				newCartItems = []
+				for(i in cartItems) {
+					if(cartItems[i].count > 0)
+						newCartItems.push(cartItems[i]);
+				}
+				localStorage.items = JSON.stringify(newCartItems);
+				updateCart();
+			}
+			init();
+		</script>
+	</body>
+</html>
